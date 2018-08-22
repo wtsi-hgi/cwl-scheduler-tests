@@ -133,7 +133,6 @@ def bash(argv):
                 lines.extend(filter(lambda l: regex.match(l.split("\t")[0]), f))
             _touch(command_line[6])
             with open(command_line[6], "w") as f:
-                _print("writing lines: {!r}".format(lines))
                 f.writelines(lines)
         else:
             _err("Unrecognised bash command string")
