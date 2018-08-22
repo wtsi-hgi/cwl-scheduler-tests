@@ -1,5 +1,4 @@
-#!/Users/jh36/homebrew/bin/python3.6
-# TODO: update Python path for Docker
+#!/usr/bin/env python3.6
 
 
 import argparse
@@ -128,8 +127,7 @@ def bash(argv):
             # first field (tab-separated) matches the chromosome regex.
             regex = re.compile(r"(^@|{})".format(r.last_match.group(1)))
             _print("with regex: {!r}".format(regex.pattern))
-            # TODO: update this path for Docker
-            with open("/Users/jh36/src/cwl-dummy-tool/interval_list", "r") as f:
+            with open("/interval_list", "r") as f:
                 lines.extend(filter(lambda l: regex.match(l.split("\t")[0]), f))
             _touch(command_line[6])
             with open(command_line[6], "w") as f:
