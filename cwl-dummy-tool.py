@@ -11,7 +11,6 @@ import pathlib
 import random
 import re
 import shlex
-import subprocess
 import sys
 import time
 from typing import Match, Optional
@@ -113,27 +112,9 @@ def bash(argv):
             _print("emulating list_rgs")
             _print("with infile: {!r}".format(infile))
             _print("with outfile: {!r}".format(outfile))
-            i = 0
-            # TODO: is this samtools dependency necessary?
-            # TODO: update samtools path for Docker
-            p = subprocess.Popen(
-                ["/Users/jh36/homebrew/bin/samtools", "view", "-H", infile],
-                stdout=subprocess.PIPE,
-                universal_newlines=True,
-            )
-            _touch(outfile)
             with open(outfile, "w") as out:
-                for line in filter(lambda l: l.startswith("@RG"), p.communicate()[0]):
-                    match = re.search(r"\tID:([^\t]+)(?:\t|$)", line)
-                    if match:
-                        out.write(match.group(1))
-                        i += 1
-            if not i:
-                _print("no lines found, using fallback output")
-                with open(outfile, "w") as f:
-                    f.write("123\n456\n")
-                    i = 2
-            _print("scattering note: {} lines written".format(i))
+                out.write("\n".join(map(str, range(1, 9))))
+            _print("scattering note: 8 lines written")
         elif all(itertools.starmap(
             lambda a, b: a is None or a == b,
             zip(["cat", None, "|", "awk", None, ">", None], command_line)
