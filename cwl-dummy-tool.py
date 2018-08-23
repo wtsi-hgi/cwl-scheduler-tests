@@ -200,20 +200,19 @@ def capmq(argv):
 def java(argv):
     _print("emulating java")
     _print("with argv: {!r}".format(argv))
-    parser = _parser()
-    parser.add_argument("-jar")
-    parser.add_argument("gatk_command")
-    args, rest = parser.parse_known_args(argv)
-    if args.jar == "/gatk/gatk.jar":
-        if args.gatk_command in {"HaplotypeCaller", "GenotypeGVCFs"}:
+    i = argv.index("-jar")
+    jar = argv[i + 1]
+    argv = argv[i + 2 :]
+    if jar == "/gatk/gatk.jar":
+        if argv[0] in {"HaplotypeCaller", "GenotypeGVCFs"}:
             # https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.7.0/org_broadinstitute_hellbender_tools_walkers_haplotypecaller_HaplotypeCaller.php
             # https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.7.0/org_broadinstitute_hellbender_tools_walkers_GenotypeGVCFs.php
-            _print("emulating gatk 4 command {}".format(args.gatk_command))
+            _print("emulating gatk 4 command {}".format(argv[0]))
             parser = _parser()
             parser.add_argument("-O", "--output")
             parser.add_argument("-OVI", "--create-output-variant-index")
             parser.add_argument("-OVM", "--create-output-variant-md5")
-            args, _ = parser.parse_known_args(rest)
+            args, _ = parser.parse_known_args(argv[1:])
             _touch(args.output)
             if args.create_output_variant_index:
                 if args.output.endswith(".gz"):
@@ -222,12 +221,12 @@ def java(argv):
                     _touch(args.output + ".idx")
             if args.create_output_variant_md5:
                 _touch(args.output + ".md5")
-        elif args.gatk_command == "GenomicsDBImport":
+        elif argv[0] == "GenomicsDBImport":
             # https://software.broadinstitute.org/gatk/documentation/tooldocs/4.0.7.0/org_broadinstitute_hellbender_tools_genomicsdb_GenomicsDBImport.php
-            _print("emulating gatk 4 command {}".format(args.gatk_command))
+            _print("emulating gatk 4 command {}".format(argv[0]))
             parser = _parser()
             parser.add_argument("--genomicsdb-workspace-path")
-            args, _ = parser.parse_known_args()
+            args, _ = parser.parse_known_args(argv[1:])
             try:
                 _mkdir(args.genomicsdb_workspace_path)
             except FileExistsError:
