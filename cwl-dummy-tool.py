@@ -378,4 +378,4 @@ if __name__ == "__main__":
     except KeyError:
         _err("Unrecognised command")
     else:
-        _print("done")
+        _print("done emulating {!r}".format(prog))
