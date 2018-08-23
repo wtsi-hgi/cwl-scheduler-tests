@@ -268,7 +268,7 @@ def python(argv):
         # number of lines per file). Therefore, we use the real
         # implementation of split_interval_list. The interval lists come
         # from filter_interval_list.
-        _print("emulating split_interval_list")
+        _print("running split_interval_list")
         parser = _parser()
         parser.add_argument("--path", type=pathlib.Path)
         parser.add_argument("--output_dir", type=pathlib.Path)
