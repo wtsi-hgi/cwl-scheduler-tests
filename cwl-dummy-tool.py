@@ -112,7 +112,8 @@ def bash(argv):
             _print("with infile: {!r}".format(infile))
             _print("with outfile: {!r}".format(outfile))
             with open(outfile, "w") as out:
-                out.write("\n".join(map(str, range(1, 9))))
+                for i in range(1, 9):
+                    out.write("{}\n".format(i))
             _print("scattering note: 8 lines written")
         elif all(itertools.starmap(
             lambda a, b: a is None or a == b,
