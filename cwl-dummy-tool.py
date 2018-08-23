@@ -296,12 +296,12 @@ def python3(argv):
         # https://github.com/wtsi-hgi/arvados-pipelines/blob/master/docker/gatk-4.0.0.0-local-io-wrapper/gatk-local-io-wrapper.py
         gatk_command = argv[4]
         _print("emulating gatk-local-io-wrapper for {}".format(gatk_command))
-        java(["-d64", *json.loads(argv[3]), "-jar", "/gatk/gatk.jar", gatk_command] + argv[5:])
+        java(["-d64", *json.loads(argv[3]), "-jar", "/gatk/gatk.jar", gatk_command, *argv[5:]])
     elif argv[0] == "/gatk-tmpdir-output-wrapper.py":
         # https://github.com/wtsi-hgi/arvados-pipelines/blob/master/docker/gatk-4.0.0.0-tmpdir-output-wrapper/gatk-tmpdir-output-wrapper.py
         gatk_command = argv[3]
         _print("emulating gatk-tmpdir-output-wrapper for {}".format(gatk_command))
-        java(["-d64", *json.loads(argv[2]), "-jar", "/gatk/gatk.jar", gatk_command] + argv[4:])
+        java(["-d64", *json.loads(argv[2]), "-jar", "/gatk/gatk.jar", gatk_command, *argv[4:]])
     else:
         _err("Unrecognised python3 command")
 
