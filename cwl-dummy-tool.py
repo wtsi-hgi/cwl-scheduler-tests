@@ -369,12 +369,11 @@ def verifybamid_rg(argv):
 
 
 if __name__ == "__main__":
-    # TODO: is this correct for execution as a Docker ENTRYPOINT?
-    prog = sys.argv[0].split(os.sep)[-1].replace(".", "_")
+    prog = sys.argv[1].split(os.sep)[-1].replace(".", "_")
     _print("emulating program: {!r}".format(prog))
     _print("with argv: {!r}".format(sys.argv))
     try:
-        globals()[prog](sys.argv[1:])
+        globals()[prog](sys.argv[2:])
     except KeyError:
         _err("Unrecognised command")
     else:
