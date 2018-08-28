@@ -354,6 +354,29 @@ def seq_cache_populate_pl(argv):
         pass
 
 
+def sh(argv):
+    _print("emulating sh")
+    _print("with argv: {!r}".format(argv))
+    try:
+        i = argv.index("-c")
+    except IndexError:
+        _err("Unrecognised sh command (no command to execute)")
+    # Detect situations like this and bail out:
+    #   sh \
+    #   -c \
+    #   'python /create-file.py "$1"' \
+    #   touch \
+    #   /tmp/foo.cram
+    # since then we would end up creating a file called "$1"
+    # rather than "/tmp/foo.cram" (assuming we handled "python
+    # /create-file.py" correctly).
+    if len(argv) > i + 2:
+        _err("Unrecognised sh command (has arguments)")
+    assert argv[i + 1] is argv[-1]
+    cmd = list(shlex.shlex(argv[i + 1], posix=True, punctuation_chars=True))
+    _invoke(cmd)
+
+
 def verifybamid_rg(argv):
     # https://github.com/wtsi-hgi/arvados-pipelines/blob/master/docker/verifybamid2-1.0.4-samtools-1.6/verifybamid_rg.sh
     _print("emulating verifybamid_rg")
@@ -368,13 +391,15 @@ def verifybamid_rg(argv):
     _touch(filename.name)
 
 
-if __name__ == "__main__":
-    prog = sys.argv[1].split(os.sep)[-1].replace(".", "_")
+def _invoke(argv):
+    prog = argv[0].split(os.sep)[-1].replace(".", "_")
     _print("emulating program: {!r}".format(prog))
-    _print("with argv: {!r}".format(sys.argv))
+    _print("with argv: {!r}".format(argv))
     try:
-        globals()[prog](sys.argv[2:])
+        globals()[prog](argv[1:])
     except KeyError:
-        _err("Unrecognised command")
-    else:
-        _print("done emulating {!r}".format(prog))
+        _err("Unrecognised program")
+
+
+if __name__ == "__main__":
+    _invoke(sys.argv[1:])
