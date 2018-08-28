@@ -372,7 +372,7 @@ def sh(argv):
     if len(argv) > i + 2:
         raise UnhandledCommandError("Unrecognised sh command (has arguments)")
     assert argv[i + 1] is argv[-1]
-    cmd = list(shlex.shlex(argv[i + 1], posix=True, punctuation_chars=True))
+    cmd = shlex.split(argv[i + 1], posix=True)
     _invoke(cmd)
 
 
