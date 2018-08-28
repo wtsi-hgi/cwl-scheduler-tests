@@ -21,11 +21,6 @@ def _print(*args, **kwargs):
     print(*args, **kwargs, file=sys.stderr)
 
 
-def _err(*args, **kwargs):
-    print(*args, **kwargs, file=sys.stderr)
-    sys.exit(127)
-
-
 def _touch(name):
     _print("creating file {!r}".format(name))
     open(name, "w").close()
@@ -74,6 +69,10 @@ class _Regex:
             return self.last_match
 
         return _wrapper
+
+
+class UnhandledCommandError(Exception):
+    pass
 
 
 def bash(argv):
@@ -134,9 +133,9 @@ def bash(argv):
             with open(command_line[6], "w") as f:
                 f.writelines(lines)
         else:
-            _err("Unrecognised bash command string")
+            raise UnhandledCommandError("Unrecognised bash command string")
     else:
-        _err("Unrecognised bash command")
+        raise UnhandledCommandError("Unrecognised bash command")
 
 
 def bcftools(argv):
@@ -164,7 +163,7 @@ def bcftools(argv):
         else:
             _touch(args.infile + ".csi")
     else:
-        _err("Unrecognised bcftools command")
+        raise UnhandledCommandError("Unrecognised bcftools command")
 
 
 def bedtools(argv):
@@ -174,7 +173,7 @@ def bedtools(argv):
         # NB: this tool prints to stdout.
         _print("emulating bedtools intersect")
     else:
-        _err("Unrecognised bedtools command")
+        raise UnhandledCommandError("Unrecognised bedtools command")
 
 
 def capmq(argv):
@@ -232,9 +231,9 @@ def java(argv):
             except FileExistsError:
                 pass
         else:
-            _err("Unrecognised gatk 4 command")
+            raise UnhandledCommandError("Unrecognised gatk 4 command")
     else:
-        _err("Unrecognised java command")
+        raise UnhandledCommandError("Unrecognised java command")
 
 
 def python(argv):
@@ -284,9 +283,9 @@ def python(argv):
             _print("running matrix_transpose")
             exec(argv[1], {}, {})
         else:
-            _err("Unrecognised python command string")
+            raise UnhandledCommandError("Unrecognised python command string")
     else:
-        _err("Unrecognised python command")
+        raise UnhandledCommandError("Unrecognised python command")
 
 
 def python3(argv):
@@ -303,7 +302,7 @@ def python3(argv):
         _print("emulating gatk-tmpdir-output-wrapper for {}".format(gatk_command))
         java(["-d64", *json.loads(argv[2]), "-jar", "/gatk/gatk.jar", gatk_command, *argv[4:]])
     else:
-        _err("Unrecognised python3 command")
+        raise UnhandledCommandError("Unrecognised python3 command")
 
 
 def samtools(argv):
@@ -336,10 +335,10 @@ def samtools(argv):
                 else:
                     args.outfile = args.infile + ".bai"
             else:
-                _err("Unrecognised file type")
+                raise UnhandledCommandError("Unrecognised file type")
         _touch(args.outfile)
     else:
-        _err("Unrecognised samtools command")
+        raise UnhandledCommandError("Unrecognised samtools command")
 
 
 def seq_cache_populate_pl(argv):
@@ -360,7 +359,7 @@ def sh(argv):
     try:
         i = argv.index("-c")
     except IndexError:
-        _err("Unrecognised sh command (no command to execute)")
+        raise UnhandledCommandError("Unrecognised sh command (no command to execute)")
     # Detect situations like this and bail out:
     #   sh \
     #   -c \
@@ -371,7 +370,7 @@ def sh(argv):
     # rather than "/tmp/foo.cram" (assuming we handled "python
     # /create-file.py" correctly).
     if len(argv) > i + 2:
-        _err("Unrecognised sh command (has arguments)")
+        raise UnhandledCommandError("Unrecognised sh command (has arguments)")
     assert argv[i + 1] is argv[-1]
     cmd = list(shlex.shlex(argv[i + 1], posix=True, punctuation_chars=True))
     _invoke(cmd)
@@ -398,8 +397,15 @@ def _invoke(argv):
     try:
         globals()[prog](argv[1:])
     except KeyError:
-        _err("Unrecognised program")
+        raise UnhandledCommandError("Unrecognised program")
 
 
 if __name__ == "__main__":
-    _invoke(sys.argv[1:])
+    try:
+        _invoke(sys.argv[1:])
+    except UnhandledCommandError as e:
+        if e.args:
+            print(*e.args, file=sys.stderr)
+        else:
+            print("Unhandled command", file=sys.stderr)
+        sys.exit(127)
