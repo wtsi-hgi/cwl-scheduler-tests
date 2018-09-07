@@ -239,6 +239,17 @@ def java(argv):
 def python(argv):
     _print("emulating python")
     _print("with argv: {!r}".format(argv))
+
+    if argv[0] == "/Applications/PyCharm CE.app/Contents/helpers/pydev/pydevd.py":
+        _print("Applying PyCharm debugger workaround")
+        parser = _parser()
+        parser.add_argument("--port")
+        parser.add_argument("--client")
+        parser.add_argument("--multiproc", action="store_true")
+        parser.add_argument("--file")
+        args, others = parser.parse_known_args(argv[1:])
+        return python([args.file, *others])
+
     if argv[0] == "/get_read_group_caps.py":
         # https://github.com/wtsi-hgi/arvados-pipelines/blob/master/docker/get-read-group-caps/get_read_group_caps.py
         _print("emulating get_read_group_caps")
@@ -291,6 +302,17 @@ def python(argv):
 def python3(argv):
     _print("emulating python3")
     _print("with argv: {!r}".format(argv))
+
+    if argv[0] == "/Applications/PyCharm CE.app/Contents/helpers/pydev/pydevd.py":
+        _print("Applying PyCharm debugger workaround")
+        parser = _parser()
+        parser.add_argument("--port")
+        parser.add_argument("--client")
+        parser.add_argument("--multiproc", action="store_true")
+        parser.add_argument("--file")
+        args, others = parser.parse_known_args(argv[1:])
+        return python([args.file, *others])
+
     if argv[0] == "/gatk-local-io-wrapper.py":
         # https://github.com/wtsi-hgi/arvados-pipelines/blob/master/docker/gatk-4.0.0.0-local-io-wrapper/gatk-local-io-wrapper.py
         gatk_command = argv[4]
